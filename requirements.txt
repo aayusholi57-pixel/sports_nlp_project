@@ -1,5 +1,5 @@
 fastapi
-uvicorn
+uvicorn[standard]
 pydantic
 spacy
 transformers
@@ -7,3 +7,6 @@ torch
 requests
 beautifulsoup4
 lxml
+streamlit
+pytest
+httpx
