@@ -1,62 +1,40 @@
+"""Aggregate sentiment trends across analyzed sports entities."""
+
+from __future__ import annotations
+
 import json
 from collections import defaultdict
+from pathlib import Path
+from typing import Any
 
-def generate_intelligence_summary(file_path: str):
-    # 1. Load the processed NLP report
-    with open(file_path, "r") as file:
+
+def generate_intelligence_summary(file_path: str, output_path: str = "summary.json") -> list[dict[str, Any]]:
+    with open(file_path, encoding="utf-8") as file:
         report = json.load(file)
 
-    # Structure to track: mentions, positive count, negative count, and type
-    entity_stats = defaultdict(lambda: {"mentions": 0, "POSITIVE": 0, "NEGATIVE": 0, "type": "UNKNOWN"})
+    entity_stats: dict[str, dict[str, Any]] = defaultdict(
+        lambda: {"mentions": 0, "POSITIVE": 0, "NEGATIVE": 0, "NEUTRAL": 0, "type": "UNKNOWN"}
+    )
 
-    # 2. Iterate through each article's NLP results
     for article in report:
-        sentiment_label = article["sentiment"]["label"].upper()
-        
-        # Use a set to count an entity only once per article
-        unique_entities = {(e["text"], e["type"]) for e in article["entities"]}
-        
-        for ent_text, ent_type in unique_entities:
-            entity_stats[ent_text]["mentions"] += 1
-            entity_stats[ent_text]["type"] = ent_type
-            
-            # Standardize positive vs negative labeling
-            if "POS" in sentiment_label or sentiment_label == "LABEL_1":
-                entity_stats[ent_text]["POSITIVE"] += 1
-            else:
-                entity_stats[ent_text]["NEGATIVE"] += 1
+        label = str(article["sentiment"]["label"]).upper()
+        sentiment = "POSITIVE" if "POS" in label or label == "LABEL_1" else "NEGATIVE" if "NEG" in label or label == "LABEL_0" else "NEUTRAL"
+        unique_entities = {(e["text"], e["type"]) for e in article.get("entities", [])}
+        for entity, entity_type in unique_entities:
+            stats = entity_stats[entity]
+            stats["mentions"] += 1
+            stats["type"] = entity_type
+            stats[sentiment] += 1
 
-    # 3. Print a formatted summary report
-    print("\n📊 --- Sports Intelligence Summary ---")
-    print(f"{'Entity Name':<22} | {'Type':<8} | {'Mentions':<8} | {'Sentiment Trend'}")
-    print("-" * 65)
+    summary: list[dict[str, Any]] = []
+    for entity, stats in sorted(entity_stats.items(), key=lambda item: (-item[1]["mentions"], item[0].lower())):
+        counts = {key: stats[key] for key in ("POSITIVE", "NEGATIVE", "NEUTRAL")}
+        trend = max(counts, key=counts.get) if stats["mentions"] else "NEUTRAL"
+        summary.append({"entity": entity, "type": stats["type"], "mentions": stats["mentions"], "trend": trend, "sentiment_counts": counts})
 
-    summary_data = []
-    for entity, stats in entity_stats.items():
-        pos = stats["POSITIVE"]
-        neg = stats["NEGATIVE"]
-        
-        if pos > neg:
-            trend = "Positive 🟢"
-        elif neg > pos:
-            trend = "Negative 🔴"
-        else:
-            trend = "Neutral 🟡"
+    Path(output_path).write_text(json.dumps(summary, indent=2), encoding="utf-8")
+    return summary
 
-        print(f"{entity:<22} | {stats['type']:<8} | {stats['mentions']:<8} | {trend}")
-        
-        summary_data.append({
-            "entity": entity,
-            "type": stats["type"],
-            "mentions": stats["mentions"],
-            "trend": trend
-        })
-
-    # 4. Save the aggregated stats to summary.json
-    with open("summary.json", "w") as file:
-        json.dump(summary_data, file, indent=4)
-        
-    print("\nSaved aggregated metrics to summary.json!")
 
 if __name__ == "__main__":
-    generate_intelligence_summary("intelligence_report.json")
+    print(json.dumps(generate_intelligence_summary("intelligence_report.json"), indent=2))
