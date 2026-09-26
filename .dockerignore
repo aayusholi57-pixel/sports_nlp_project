@@ -1,0 +1,4 @@
+__pycache__/
+.venv/
+sports_intel.db
+*.json

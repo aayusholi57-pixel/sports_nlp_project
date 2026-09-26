@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Natural Language Processing (NLP)</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #2563eb, #7c3aed);
+            color: white;
+            padding: 70px 20px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 52px;
+            margin-bottom: 15px;
+        }
+
+        header p {
+            font-size: 21px;
+            max-width: 750px;
+            margin: auto;
+        }
+
+        /* Main */
+        main {
+            max-width: 1100px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        section {
+            background: white;
+            margin-bottom: 30px;
+            padding: 35px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.07);
+        }
+
+        h2 {
+            color: #2563eb;
+            font-size: 30px;
+            margin-bottom: 18px;
+        }
+
+        h3 {
+            margin-bottom: 10px;
+            color: #374151;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        /* Highlight */
+        .highlight {
+            background: #eff6ff;
+            border-left: 5px solid #2563eb;
+            padding: 20px;
+            border-radius: 8px;
+            font-size: 18px;
+        }
+
+        /* Example */
+        .example {
+            background: #111827;
+            color: #f9fafb;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .example .sentence {
+            color: #60a5fa;
+            font-size: 21px;
+            margin-bottom: 15px;
+        }
+
+        .result {
+            margin: 8px 0;
+        }
+
+        .positive {
+            color: #34d399;
+        }
+
+        /* Cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid #e5e7eb;
+            padding: 22px;
+            border-radius: 12px;
+            transition: 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .card h3 {
+            color: #2563eb;
+        }
+
+        /* Pipeline */
+        .pipeline {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 25px;
+        }
+
+        .step {
+            background: #2563eb;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+        }
+
+        .arrow {
+            font-size: 25px;
+            color: #6b7280;
+        }
+
+        /* Code */
+        pre {
+            background: #111827;
+            color: #e5e7eb;
+            padding: 25px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin-top: 20px;
+        }
+
+        code {
+            font-family: Consolas, monospace;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            border: 1px solid #d1d5db;
+            text-align: left;
+        }
+
+        th {
+            background: #2563eb;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background: #f9fafb;
+        }
+
+        /* Learning path */
+        .learning-path {
+            counter-reset: topic;
+        }
+
+        .topic {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 14px;
+            margin: 8px 0;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+
+        .number {
+            background: #2563eb;
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        /* Interactive demo */
+        .demo {
+            background: #f8fafc;
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            resize: vertical;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        #output {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            display: none;
+        }
+
+        /* Footer */
+        footer {
+            background: #111827;
+            color: white;
+            text-align: center;
+            padding: 30px;
+            margin-top: 50px;
+        }
+
+        /* Mobile */
+        @media (max-width: 700px) {
+            header h1 {
+                font-size: 38px;
+            }
+
+            header p {
+                font-size: 17px;
+            }
+
+            section {
+                padding: 22px;
+            }
+
+            .pipeline {
+                flex-direction: column;
+            }
+
+            .arrow {
+                transform: rotate(90deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header -->
+    <header>
+        <h1>Natural Language Processing</h1>
+        <p>
+            NLP is a branch of Artificial Intelligence that helps computers
+            understand, process, analyze, and generate human language.
+        </p>
+    </header>
+
+
+    <main>
+
+        <!-- Definition -->
+        <section>
+            <h2>What is NLP?</h2>
+
+            <div class="highlight">
+                <strong>NLP = Natural Language Processing</strong>
+                <br><br>
+                NLP teaches computers how to work with human language.
+            </div>
+
+            <p style="margin-top: 20px;">
+                Computers normally work with numbers and structured data,
+                while humans communicate using languages such as English,
+                Nepali, Hindi, Chinese, and many others.
+            </p>
+
+            <p>
+                NLP provides techniques that allow computers to understand
+                and manipulate human language.
+            </p>
+        </section>
+
+
+        <!-- Example -->
+        <section>
+            <h2>Simple Example</h2>
+
+            <p>
+                Suppose a user writes:
+            </p>
+
+            <div class="example">
+
+                <div class="sentence">
+                    "I really love this movie!"
+                </div>
+
+                <div class="result">
+                    Language → English
+                </div>
+
+                <div class="result">
+                    Topic → Movie
+                </div>
+
+                <div class="result">
+                    Sentiment →
+                    <span class="positive">Positive</span>
+                </div>
+
+                <div class="result">
+                    Emotion → Happiness / Excitement
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- Applications -->
+        <section>
+            <h2>Applications of NLP</h2>
+
+            <div class="cards">
+
+                <div class="card">
+                    <h3>Chatbots</h3>
+                    <p>
+                        Understand user questions and generate responses.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Search Engines</h3>
+                    <p>
+                        Understand what users mean when they search.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Translation</h3>
+                    <p>
+                        Translate text from one language to another.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Sentiment Analysis</h3>
+                    <p>
+                        Determine whether text expresses positive,
+                        negative, or neutral sentiment.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Spam Detection</h3>
+                    <p>
+                        Identify unwanted or suspicious messages.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Text Summarization</h3>
+                    <p>
+                        Convert long documents into shorter summaries.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Voice Assistants</h3>
+                    <p>
+                        Process spoken commands and convert them into actions.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Resume Screening</h3>
+                    <p>
+                        Extract skills, education, experience, and other
+                        information from resumes.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- NLP Pipeline -->
+        <section>
+            <h2>How NLP Works</h2>
+
+            <p>
+                A simplified NLP pipeline looks like this:
+            </p>
+
+            <div class="pipeline">
+
+                <div class="step">Human Language</div>
+                <div class="arrow">→</div>
+
+                <div class="step">Text / Speech</div>
+                <div class="arrow">→</div>
+
+                <div class="step">Preprocessing</div>
+                <div class="arrow">→</div>
+
+                <div class="step">Tokenization</div>
+                <div class="arrow">→</div>
+
+                <div class="step">Representation</div>
+                <div class="arrow">→</div>
+
+                <div class="step">NLP Model</div>
+                <div class="arrow">→</div>
+
+                <div class="step">Prediction</div>
+                <div class="arrow">→</div>
+
+                <div class="step">Output</div>
+
+            </div>
+        </section>
+
+
+        <!-- Tokenization -->
+        <section>
+            <h2>Tokenization</h2>
+
+            <p>
+                Tokenization means breaking text into smaller pieces called
+                <strong>tokens</strong>.
+            </p>
+
+            <div class="example">
+
+                <div class="sentence">
+                    "I love Python programming"
+                </div>
+
+                <div>
+                    Tokens:
+                </div>
+
+                <br>
+
+                <div>
+                    ["I", "love", "Python", "programming"]
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- NLP techniques -->
+        <section>
+            <h2>Important NLP Techniques</h2>
+
+            <div class="cards">
+
+                <div class="card">
+                    <h3>Text Preprocessing</h3>
+                    <p>
+                        Cleaning and preparing text before processing.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Tokenization</h3>
+                    <p>
+                        Splitting text into tokens.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Stop Words</h3>
+                    <p>
+                        Removing common words when appropriate.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Stemming</h3>
+                    <p>
+                        Reducing words to a basic stem.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Lemmatization</h3>
+                    <p>
+                        Converting words to their meaningful base form.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>TF-IDF</h3>
+                    <p>
+                        Represents the importance of words within documents.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Word Embeddings</h3>
+                    <p>
+                        Represent words as numerical vectors.
+                    </p>
+                </div>
+
+                <div class="card">
+                    <h3>Transformers</h3>
+                    <p>
+                        Modern architecture used by many powerful NLP models.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- NLP Models -->
+        <section>
+            <h2>Important NLP Models</h2>
+
+            <table>
+
+                <tr>
+                    <th>Model / Technique</th>
+                    <th>Purpose</th>
+                </tr>
+
+                <tr>
+                    <td>Bag of Words</td>
+                    <td>Basic text representation</td>
+                </tr>
+
+                <tr>
+                    <td>TF-IDF</td>
+                    <td>Word importance representation</td>
+                </tr>
+
+                <tr>
+                    <td>Word2Vec</td>
+                    <td>Word embeddings</td>
+                </tr>
+
+                <tr>
+                    <td>GloVe</td>
+                    <td>Word embeddings</td>
+                </tr>
+
+                <tr>
+                    <td>RNN</td>
+                    <td>Sequential data processing</td>
+                </tr>
+
+                <tr>
+                    <td>LSTM</td>
+                    <td>Long-term sequence information</td>
+                </tr>
+
+                <tr>
+                    <td>BERT</td>
+                    <td>Language understanding</td>
+                </tr>
+
+                <tr>
+                    <td>Transformers</td>
+                    <td>Modern language processing architecture</td>
+                </tr>
+
+                <tr>
+                    <td>LLMs</td>
+                    <td>Large-scale language understanding and generation</td>
+                </tr>
+
+            </table>
+        </section>
+
+
+        <!-- NLP vs LLM -->
+        <section>
+            <h2>NLP vs LLM</h2>
+
+            <div class="highlight">
+                <strong>NLP is the broad field.</strong>
+                <br>
+                LLMs are modern large-scale models used for many NLP tasks.
+            </div>
+
+            <br>
+
+            <p>
+                The relationship can be viewed approximately as:
+            </p>
+
+            <pre><code>Artificial Intelligence
+        │
+        └── Machine Learning
+              │
+              └── Deep Learning
+                    │
+                    └── NLP
+                         │
+                         ├── Traditional NLP
+                         │
+                         ├── Transformers
+                         │
+                         ├── BERT
+                         │
+                         └── Large Language Models
+                              │
+                              ├── GPT
+                              ├── Gemini
+                              └── Other LLMs</code></pre>
+        </section>
+
+
+        <!-- Learning Roadmap -->
+        <section>
+            <h2>NLP Learning Roadmap</h2>
+
+            <div class="learning-path">
+
+                <div class="topic">
+                    <div class="number">1</div>
+                    <div>Python Programming</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">2</div>
+                    <div>Text Preprocessing</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">3</div>
+                    <div>Tokenization</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">4</div>
+                    <div>Stemming & Lemmatization</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">5</div>
+                    <div>Bag of Words & TF-IDF</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">6</div>
+                    <div>Word Embeddings</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">7</div>
+                    <div>RNN & LSTM</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">8</div>
+                    <div>Attention Mechanism</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">9</div>
+                    <div>Transformers</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">10</div>
+                    <div>BERT & Modern NLP Models</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">11</div>
+                    <div>Large Language Models</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">12</div>
+                    <div>RAG & LLM Applications</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">13</div>
+                    <div>Fine-tuning</div>
+                </div>
+
+                <div class="topic">
+                    <div class="number">14</div>
+                    <div>Deployment</div>
+                </div>
+
+            </div>
+        </section>
+
+
+        <!-- Interactive Demo -->
+        <section>
+            <h2>Try a Simple NLP Demo</h2>
+
+            <p>
+                Enter a sentence below. This simple browser demo looks for
+                basic positive and negative words.
+            </p>
+
+            <div class="demo">
+
+                <textarea id="textInput"
+                    placeholder="Example: I love this amazing product!"></textarea>
+
+                <button onclick="analyzeText()">
+                    Analyze Text
+                </button>
+
+                <div id="output"></div>
+
+            </div>
+        </section>
+
+
+        <!-- Summary -->
+        <section>
+            <h2>Summary</h2>
+
+            <div class="highlight">
+
+                <strong>NLP allows computers to work with human language.</strong>
+
+                <br><br>
+
+                It is used in chatbots, search engines, translation,
+                sentiment analysis, spam detection, summarization,
+                voice assistants, and modern AI systems.
+
+            </div>
+        </section>
+
+    </main>
+
+
+    <!-- Footer -->
+    <footer>
+        <p>
+            Natural Language Processing — AI & Machine Learning
+        </p>
+    </footer>
+
+
+    <script>
+
+        function analyzeText() {
+
+            const input = document
+                .getElementById("textInput")
+                .value
+                .toLowerCase();
+
+            const output = document
+                .getElementById("output");
+
+            if (input.trim() === "") {
+
+                output.style.display = "block";
+
+                output.innerHTML =
+                    "<strong>Please enter some text.</strong>";
+
+                return;
+            }
+
+            const positiveWords = [
+                "love",
+                "good",
+                "great",
+                "amazing",
+                "excellent",
+                "happy",
+                "awesome",
+                "wonderful",
+                "best"
+            ];
+
+            const negativeWords = [
+                "bad",
+                "hate",
+                "terrible",
+                "awful",
+                "worst",
+                "sad",
+                "poor",
+                "horrible"
+            ];
+
+            let positiveScore = 0;
+            let negativeScore = 0;
+
+            positiveWords.forEach(function(word) {
+
+                if (input.includes(word)) {
+                    positiveScore++;
+                }
+
+            });
+
+            negativeWords.forEach(function(word) {
+
+                if (input.includes(word)) {
+                    negativeScore++;
+                }
+
+            });
+
+            let sentiment;
+
+            if (positiveScore > negativeScore) {
+
+                sentiment = "Positive";
+
+            } else if (negativeScore > positiveScore) {
+
+                sentiment = "Negative";
+
+            } else {
+
+                sentiment = "Neutral";
+
+            }
+
+            const words = input
+                .trim()
+                .split(/\s+/);
+
+            output.style.display = "block";
+
+            output.innerHTML = `
+                <h3>NLP Analysis</h3>
+
+                <p>
+                    <strong>Word Count:</strong>
+                    ${words.length}
+                </p>
+
+                <p>
+                    <strong>Positive Words:</strong>
+                    ${positiveScore}
+                </p>
+
+                <p>
+                    <strong>Negative Words:</strong>
+                    ${negativeScore}
+                </p>
+
+                <p>
+                    <strong>Detected Sentiment:</strong>
+                    ${sentiment}
+                </p>
+            `;
+        }
+
+    </script>
+
+</body>
+</html>

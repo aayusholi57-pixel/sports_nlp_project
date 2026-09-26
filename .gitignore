@@ -1,0 +1,37 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.ipnyb_checkpoints/
+*.ipnyb
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+env/
+
+# SQLite Database (Keep local data out of Git)
+*.db
+*.sqlite3
+
+# Local JSON state / pipeline outputs
+raw_news.json
+intelligence_report.json
+summary.json
+
+# IDE / Editor Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# Docker volumes or local build artifacts
+.docker/
+*.ipynb
