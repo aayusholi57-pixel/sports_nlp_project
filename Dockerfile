@@ -1,23 +1,19 @@
-# 1. Use an official lightweight Python image
 FROM python:3.10-slim
 
-# 2. Set the working directory inside the container
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
+
 WORKDIR /app
 
-# 3. Copy the requirements file first to leverage Docker cache
 COPY requirements.txt .
-
-# 4. Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# 5. Download the spaCy NLP model during the build process
+RUN pip install --upgrade pip && pip install -r requirements.txt
 RUN python -m spacy download en_core_web_sm
 
-# 6. Copy the rest of your application code
 COPY . .
 
-# 7. Expose the port FastAPI runs on
 EXPOSE 8000
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+  CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health')"
 
-# 8. Define the command to run the API
 CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
