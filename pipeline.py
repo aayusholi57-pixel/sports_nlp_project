@@ -1,38 +1,34 @@
+"""Run the end-to-end sports news NLP pipeline."""
+
+from __future__ import annotations
+
 import json
-from core import SportsIntelAnalyzer # Imports the class we built in Phase 1
+from pathlib import Path
+from typing import Any
 
-# 1. Create our raw input data
-raw_news = [
-    {"id": 1, "text": "Real Madrid played a fantastic match against Rayo Vallecano today, absolutely brilliant!"},
-    {"id": 2, "text": "The weather during the Manchester United vs Manchester City game was terrible, and the referee was completely unfair."},
-    {"id": 3, "text": "A quiet 0-0 draw between Arsenal and Chelsea. Nothing much happened."}
-]
+from aggregate import generate_intelligence_summary
+from core import get_analyzer
+from scraper import scrape_live_news
 
-# 2. Write the data to a file (Creates the file automatically)
-with open("raw_news.json", "w") as file:
-    json.dump(raw_news, file, indent=4)
-    
-print("Created raw_news.json!")
 
-# 3. Read the raw data back from the file
-with open("raw_news.json", "r") as file:
-    articles = json.load(file)
+def run_pipeline(fetch_live: bool = True, input_path: str = "raw_news.json") -> list[dict[str, Any]]:
+    if fetch_live:
+        articles = scrape_live_news(input_path)
+    else:
+        articles = json.loads(Path(input_path).read_text(encoding="utf-8"))
 
-# 4. Initialize our NLP Engine
-analyzer = SportsIntelAnalyzer()
+    analyzer = get_analyzer()
+    reports = []
+    for article in articles:
+        result = analyzer.analyze(str(article["text"]))
+        result["id"] = article["id"]
+        reports.append(result)
 
-# 5. Process each article
-intelligence_report = []
-for article in articles:
-    print(f"Analyzing article {article['id']}...")
-    result = analyzer.analyze(article["text"])
-    
-    # Add the ID back into the result so we can track it
-    result["id"] = article["id"]
-    intelligence_report.append(result)
+    Path("intelligence_report.json").write_text(json.dumps(reports, indent=2), encoding="utf-8")
+    generate_intelligence_summary("intelligence_report.json")
+    return reports
 
-# 6. Save the final analyzed intelligence to a new file
-with open("intelligence_report.json", "w") as file:
-    json.dump(intelligence_report, file, indent=4)
-    
-print("Pipeline complete! Check intelligence_report.json for the results.")
+
+if __name__ == "__main__":
+    results = run_pipeline()
+    print(f"Pipeline complete: {len(results)} articles analyzed")
