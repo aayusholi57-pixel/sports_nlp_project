@@ -1,43 +1,34 @@
+"""Fetch football news from the BBC Sport RSS feed."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
 import requests
 from bs4 import BeautifulSoup
-import json
 
-def scrape_live_news():
-    print("🌐 Fetching live football news from BBC Sport...")
-    # RSS feeds are perfect for scraping because they provide clean, structured XML data
-    url = "http://feeds.bbci.co.uk/sport/football/rss.xml"
-    
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-        
-        # Parse the XML content
-        soup = BeautifulSoup(response.content, features="xml")
-        items = soup.findAll('item')
-        
-        live_news = []
-        
-        # Grab the latest 15 news items
-        for i, item in enumerate(items[:15]):
-            title = item.find('title').text
-            description = item.find('description').text
-            
-            # Combine title and description for richer text analysis
-            full_text = f"{title}. {description}"
-            
-            live_news.append({
-                "id": i + 1,
-                "text": full_text
-            })
-            
-        # Overwrite our existing raw_news.json file with live data
-        with open("raw_news.json", "w") as file:
-            json.dump(live_news, file, indent=4)
-            
-        print(f"✅ Successfully scraped {len(live_news)} live articles and saved to raw_news.json!")
-        
-    except requests.exceptions.RequestException as e:
-        print(f"❌ Error fetching data: {e}")
+BBC_FOOTBALL_RSS = "https://feeds.bbci.co.uk/sport/football/rss.xml"
+
+
+def scrape_live_news(output_path: str = "raw_news.json", limit: int = 15) -> list[dict[str, object]]:
+    response = requests.get(BBC_FOOTBALL_RSS, timeout=15, headers={"User-Agent": "sports-nlp-project/1.0"})
+    response.raise_for_status()
+    soup = BeautifulSoup(response.content, features="xml")
+
+    articles = []
+    for index, item in enumerate(soup.find_all("item")[:limit], start=1):
+        title = item.find("title")
+        description = item.find("description")
+        if not title:
+            continue
+        text = f"{title.get_text(strip=True)}. {description.get_text(' ', strip=True) if description else ''}".strip()
+        articles.append({"id": index, "text": text})
+
+    Path(output_path).write_text(json.dumps(articles, indent=2), encoding="utf-8")
+    return articles
+
 
 if __name__ == "__main__":
-    scrape_live_news()
+    articles = scrape_live_news()
+    print(f"Fetched {len(articles)} football articles")
