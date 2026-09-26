@@ -59,7 +59,7 @@ with tab2:
         
         # Show simple counts
         total_entities = len(summary)
-        pos_entities = sum(1 for e in summary if "Positive" in e['trend'])
+        pos_entities = sum(1 for e in summary if "POSITIVE" in e['trend'])
         st.caption(f"Tracking **{total_entities}** entities across saved reports ({pos_entities} trending positive).")
         
     except FileNotFoundError:
